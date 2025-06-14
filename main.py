@@ -1,14 +1,20 @@
 import pyxel
 import random
 
+SCREEN_WIDTH = 240
+SCREEN_HEIGHT = 320
+
 class Platformer:
     def __init__(self):
-        pyxel.init(160, 320, title="ひなころじゃんぷ")
+        pyxel.init(SCREEN_WIDTH, SCREEN_HEIGHT, title="ひなころじゃんぷ")
+        pyxel.load("my_resource.pyxres")
+
         # 主人公の状態
         self.player_x = 72
-        self.player_y = 300
+        self.player_y = 236
         self.player_vy = 0
         self.player_on_ground = False
+        self.player_direction = 0
         # 足場リスト（x, y, width, height, vx）
         self.platforms = [
             [64, 310, 32, 4, 1],  # vx: 左右の移動速度
@@ -28,7 +34,7 @@ class Platformer:
             if pyxel.btnp(pyxel.KEY_SPACE):
                 # リスタート
                 self.player_x = 72
-                self.player_y = 300
+                self.player_y = 236
                 self.player_vy = 0
                 self.scroll_y = 0
                 self.game_state = "PLAYING"
@@ -46,8 +52,10 @@ class Platformer:
         # 左右移動
         if pyxel.btn(pyxel.KEY_LEFT) and self.player_x > 0:
             self.player_x -= 2
-        if pyxel.btn(pyxel.KEY_RIGHT) and self.player_x < 144:
+            self.player_direction = 1
+        if pyxel.btn(pyxel.KEY_RIGHT) and self.player_x < 256:
             self.player_x += 2
+            self.player_direction = 0
 
         # ジャンプ
         if pyxel.btnp(pyxel.KEY_SPACE) and self.player_on_ground:
@@ -62,10 +70,10 @@ class Platformer:
         self.player_on_ground = False
         for plat in self.platforms:
             px, py, pw, ph, vx = plat
-            if (self.player_x + 16 > px and self.player_x < px + pw and
-                self.player_y + 16 > py and self.player_y + 16 < py + ph + 5 and
+            if (self.player_x + 40 > px and (self.player_x + 20) < px + pw and
+                self.player_y + 60 > py and self.player_y + 60 < py + ph + 5 and
                 self.player_vy > 0):
-                self.player_y = py - 16
+                self.player_y = py - 60
                 self.player_vy = 0
                 self.player_on_ground = True
                 # 足場の移動に追従（着地時のみ）
@@ -76,7 +84,7 @@ class Platformer:
             px, py, pw, ph, vx = plat
             plat[0] += vx  # x座標を更新
             # 画面端で反転
-            if plat[0] <= 0 or plat[0] + pw >= 160:
+            if plat[0] <= 0 or plat[0] + pw >= SCREEN_WIDTH:
                 plat[4] = -vx
 
         # スクロール処理
@@ -97,10 +105,10 @@ class Platformer:
             self.highest_platform_y = new_y
 
         # 古い足場の削除
-        self.platforms = [plat for plat in self.platforms if plat[1] < 320 + self.scroll_y]
+        self.platforms = [plat for plat in self.platforms if plat[1] < SCREEN_HEIGHT + self.scroll_y]
 
         # ゲームオーバー判定
-        if self.player_y > 480:
+        if self.player_y > 350:
             self.game_state = "GAME_OVER"
 
         # ゴール判定
@@ -111,20 +119,24 @@ class Platformer:
         pyxel.cls(0)
 
         if self.game_state == "GAME_OVER":
-            pyxel.text(50, 160, "Game Over\nPress SPACE", 7)
+            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Game Over\nPress SPACE", 7)
             return
         elif self.game_state == "CLEARED":
-            pyxel.text(50, 160, "Goal!\nPress SPACE", 7)
+            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Goal!\nPress SPACE", 7)
             return
 
         # 足場描画
         for plat in self.platforms:
             screen_y = plat[1]
-            if 0 <= screen_y <= 320:
+            if 0 <= screen_y <= SCREEN_HEIGHT:
                 pyxel.rect(plat[0], plat[1], plat[2], plat[3], 8)
 
         # 主人公描画
-        pyxel.rect(self.player_x, self.player_y, 16, 16, 9)
+        if self.player_direction == 1:
+            pyxel.blt(self.player_x, self.player_y, 1, 0, 0, 64, 64, pyxel.COLOR_BLACK)
+        elif self.player_direction == 0:
+            pyxel.blt(self.player_x, self.player_y, 1, 0, 64, 64, 64, pyxel.COLOR_BLACK)
+        #pyxel.rect(self.player_x, self.player_y, 16, 16, 9)
 
         # 操作説明とデバッグ情報
         pyxel.text(10, 10, f"Arrow: Move, SPACE: Jump\nY: {self.player_y:.1f}\nScrollY: {self.scroll_y:.1f}", 7)
