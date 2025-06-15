@@ -31,7 +31,7 @@ class Platformer:
 
     def update(self):
         if self.game_state != "PLAYING":
-            if pyxel.btnp(pyxel.KEY_SPACE):
+            if pyxel.btnp(pyxel.KEY_UP):
                 # リスタート
                 self.player_x = 72
                 self.player_y = 236
