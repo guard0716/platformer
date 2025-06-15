@@ -58,7 +58,7 @@ class Platformer:
             self.player_direction = 0
 
         # ジャンプ
-        if pyxel.btnp(pyxel.KEY_SPACE) and self.player_on_ground:
+        if pyxel.btnp(pyxel.KEY_UP) and self.player_on_ground:
             self.player_vy = -6
             self.player_on_ground = False
 
@@ -119,10 +119,10 @@ class Platformer:
         pyxel.cls(0)
 
         if self.game_state == "GAME_OVER":
-            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Game Over\nPress SPACE", 7)
+            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Game Over\nPress UP KEY", 7)
             return
         elif self.game_state == "CLEARED":
-            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Goal!\nPress SPACE", 7)
+            pyxel.text(SCREEN_WIDTH // 2 - 20, SCREEN_HEIGHT // 2, "Goal!\nPress UP KEY", 7)
             return
 
         # 足場描画
@@ -139,7 +139,7 @@ class Platformer:
         #pyxel.rect(self.player_x, self.player_y, 16, 16, 9)
 
         # 操作説明とデバッグ情報
-        pyxel.text(10, 10, f"Arrow: Move, SPACE: Jump\nY: {self.player_y:.1f}\nScrollY: {self.scroll_y:.1f}", 7)
+        pyxel.text(10, 10, f"<- ->: Move, UP: Jump\nY: {self.player_y:.1f}\nScrollY: {self.scroll_y:.1f}", 7)
 
 if __name__ == "__main__":
     Platformer()
